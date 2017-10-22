@@ -1,0 +1,63 @@
+{% extends "index.html" %}
+{% load kingadmin_tags %}
+
+
+{% block right_content %}
+  <form class="form-horizontal" method="POST" onsubmit="submit_data()">
+      {% csrf_token %}
+      {% for obj in model_obj %}
+      {% if obj.name in admin_class.filter_horizontal %}
+          <div class="form-group">
+              <label for="inputEmail3" class="col-sm-2 control-label">{{obj.name}}</label>
+              <div class="col-sm-10">
+                  <div class="col-lg-5">
+                      <select id="select_{{obj.name}}_form" class="form-control" multiple>
+                          {% get_add_m2m_value  obj.name admin_class as m2m_value %} 
+                          {% for value in m2m_value %}
+                          <option value="{{value.id}}" onclick="mv_select_option(this,'select_{{obj.name}}_to')">{{value.name}}</option>
+                          {% endfor %}
+                         
+                      </select>
+                      <span class="btn btn-primary" onclick="mv_all_select_option('select_{{obj.name}}_form','select_{{obj.name}}_to')">MoveAll</span>
+                  </div>
+                  <div class="col-lg-5">
+                      <select id="select_{{obj.name}}_to" class="form-control" multiple  name="{{obj.name}}" tag='m2m_data'>
+                          
+                      </select>
+                      <span class="btn btn-primary" onclick="mv_all_select_option('select_{{obj.name}}_to','select_{{obj.name}}_form')">BackAll</span>
+                  </div>
+              </div>
+          </div>
+      
+    {% else %}
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">{{obj.name}}</label>
+            <div class="col-sm-10">
+                <p for="">{{obj}}</p>
+            </div>
+        </div>
+    {% endif %}
+    {% endfor %}
+    <input type="submit" value="提交修改" class="btn btn-primary">
+  </form>
+
+  <script>
+        function mv_select_option(ele, to_select){
+            var new_target_id = $(ele).parent().attr('id');
+            var option = "<option value='" + $(ele).val() +"'onclick=mv_select_option(this,'"+ new_target_id +"') >" + $(ele).text() +"</option>";
+            $("#"+ to_select).append(option);
+            $(ele).remove();
+        }
+        function mv_all_select_option(from,to){
+           $('#'+from).children().each(function(){
+               mv_select_option(this,to);
+           })
+            
+        }
+        function submit_data(){
+            $('select[tag] option').attr('selected',true)
+        }
+            
+
+  </script>
+{% endblock right_content %}

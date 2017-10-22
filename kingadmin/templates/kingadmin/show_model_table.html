@@ -1,0 +1,115 @@
+{% extends "index.html" %}
+{% load kingadmin_tags %}
+
+
+{% block right_content %}
+<ol class="breadcrumb">
+    <li><a href="/kingadmin/admin.html">Home</a></li>
+    <li class="active">{% get_model_name admin_class %}</li>
+  </ol>
+
+<h1>Edit</h1>
+    {% if admin_class.search_fields %}
+        <form>
+            <input type="search" name="_q" value="{{ admin_class.search_arg }}" placeholder="search name">
+            <input type="submit" value="搜索" class="btn btn-primary">
+            {% for k,v in admin_class.filter_conditions.items %}
+                <input type="hidden" name="{{ k }}" value="{{ v }}">
+            {% endfor %}
+        </form>
+    {% endif %}
+    <table class="table table-striped">
+        {% if admin_class.list_display %}
+            <thead>
+                <tr>
+                    <form action="">
+                    {% for c in admin_class.list_filter %}
+                        <th>{% build_filter_ele c admin_class %}</th>
+                    {% endfor %}
+                    <th><input type="submit" value="过滤" class="btn btn-primary"></th>
+                    </form>
+                </tr>
+                <form method="post" onsubmit="return up_select_obj(this)">{% csrf_token %}
+                        <tr>
+                            <td>
+                            <select name="action"  class="form-control">
+                                <option value="">--------</option>
+                                {% for i in admin_class.default_actions %}
+                                    <option value="{{i}}">{{i}}</option>
+                                {% endfor %}
+                            </select>
+                            </td>
+                            <td><input type="submit" value="GO" class="btn btn-primary"></td>
+                        </tr>
+                </form>
+                <tr>
+                <th><input type="checkbox" name="" id="" onclick="select_all(this)">选中所有 </th>
+                {% for item in admin_class.list_display %}
+                    <th><a href="?_o={% get_sorted_column item current_sorted_column forloop.counter0 %}{% render_filter_args admin_class %}">{{item}}{% build_sorted_arrow item current_sorted_column %}</a></th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in qs %}
+                    <tr>
+                        <th><input type="checkbox" value="{{item.id}}" class="select_checkbox"> </th>
+                        {% build_table_row item admin_class %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        {% else %}
+            <head>
+                {% for obj in qs %}
+                    <tr>
+                        <th><a href="{{obj.id}}/change_data.html">{{ obj }}</a></th>
+                    </tr>
+                {% endfor %}
+            </head>
+
+        {% endif %}    
+            </table>
+            <a href="add_data.html" class="btn btn-primary"><span class="glyphicon glyphicon-plus">添加</span></a>
+            
+        
+
+    
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        {{page_btn|safe}}
+    </ul>
+  </nav>
+  <script>
+      function select_all(ele){
+          if ($(ele).prop('checked')){
+            $(".select_checkbox").prop('checked',true)
+          }else{
+            $(".select_checkbox").prop('checked',false)
+          }
+      }
+      var obj_id_list = []
+      function up_select_obj(ele){
+          $(".select_checkbox").each(function(){
+              if($(this).prop('checked')){
+                  obj_id_list.push($(this).val())
+              }
+          });
+          var select_action = $('select[name="action"]').val()
+          if (!select_action){
+              alert('no aciton select')
+              return false
+          }
+          if (obj_id_list.length ==0){
+              alert('no obj select')
+              return false
+          }else{
+            var temp_input = "<input type='hidden' name='select_ids' value="+ JSON.stringify(obj_id_list)+">"
+            $(ele).append(temp_input)
+          }
+      }
+  </script>
+  
+{% endblock right_content %}
+
+
+
+

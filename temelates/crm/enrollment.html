@@ -1,0 +1,45 @@
+{% extends "index.html" %}
+
+
+{% block right_content %}
+    <h1>Enroolment</h1>
+    {% if enrollment_url %}
+    <h3>将此链接复制给客户填写报名信息</h3>
+    <div class="col-sm-10">
+        <input type="text" value="{{enrollment_url}}" readonly='true' class="form-control">
+    </div>
+    <a href="" class="btn btn-primary pull-right">下一步</a>
+    {% else %}
+    <form class="form-horizontal" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-2 control-label">选择客户</label>
+          <div class="col-sm-10">
+            <select name="customer_id" id="" class="form-control">
+                <option value="">------</option>
+                {% for customer in customer_obj %}
+                <option value="{{customer.id}}">{{customer.name}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputPassword3" class="col-sm-2 control-label">选择班级</label>
+          <div class="col-sm-10">
+            <select name="class_id" id="" class="form-control">
+                <option value="">-------</option>
+                {% for class_list in class_list_obj %}
+                  <option value="{{class_list.id}}">{{class_list}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+                <input type="submit" value="下一步" class="btn btn-primary pull-right">
+         </div>
+        </div>
+      </form>
+      {% endif %}
+{% endblock right_content %}
+

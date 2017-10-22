@@ -1,0 +1,92 @@
+{% extends "index.html" %} 
+{% load kingadmin_tags %} 
+{% block right_content %}
+<ol class="breadcrumb">
+    <li><a href="/kingadmin/admin.html">Home</a></li>
+    <li><a href="/kingadmin/{{app_name}}/{{model_name}}/">{{model_name}}</a></li>
+    <li class="active">ChangData</li>
+  </ol>
+<h1>ChangData</h1>
+<form class="form-horizontal" method="POST" onsubmit="submit_data()">
+    {% csrf_token %} 
+    {% for form in model_obj %}
+    {% if form.name in admin_class.filter_horizontal %}
+
+    <div class="form-group">
+        <label for="inputEmail3" class="col-sm-2 control-label">{{form.name}}</label>
+        <div class="col-sm-10">
+            <div class="col-lg-5">
+                <input type="text" class="form-control" placeholder="输入查找" oninput="serach_obj(this)">
+                <select id="select_{{form.name}}_form" class="form-control" multiple>
+                    {% get_m2m_value model_obj form.name admin_class as m2m_value %} 
+                    {% for value in m2m_value %}
+                    <option value="{{value.id}}" onclick="mv_select_option(this,'select_{{form.name}}_to')">{{value.name}}</option>
+                    {% endfor %}
+                   
+                </select>
+                <span class="btn btn-primary" onclick="mv_all_select_option('select_{{form.name}}_form','select_{{form.name}}_to')">MoveAll</span>
+            </div>
+            <div class="col-lg-5">
+                <select id="select_{{form.name}}_to" class="form-control" multiple  name="{{form.name}}" tag='m2m_data'>
+                    {% get_qs_m2m_value model_obj form.name admin_class as qs_m2m_value %} 
+                    {% for qs in qs_m2m_value %}
+                    <option value="{{qs.id}}"  onclick="mv_select_option(this,'select_{{form.name}}_form')">{{qs.name}}</option>
+                    {% endfor %}
+                </select>
+                <span class="btn btn-primary" onclick="mv_all_select_option('select_{{form.name}}_to','select_{{form.name}}_form')">BackAll</span>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="form-group">
+        <label for="inputEmail3" class="col-sm-2 control-label">{{form.name}}</label>
+        <div class="col-sm-10">
+            {{form}}
+        </div>
+    </div>
+    {% endif %} {% endfor %} {% if admin_class.readonly_fields %} {% for field in admin_class.readonly_fields %}
+    <div class="form-group">
+        <label for="inputEmail3" class="col-sm-2 control-label">{{field}}</label>
+        <div class="col-sm-10">
+            <p for="">{% get_field_value model_obj field admin_class%}</p>
+        </div>
+    </div>
+    {% endfor %} 
+    {% endif %}
+    <a href="/kingadmin/{{app_name}}/{{model_name}}/{{model_obj.instance.id}}/delete_data.html" class="btn btn-danger">删除对象</a>
+    <input type="submit" value="提交修改" class="btn btn-primary">
+</form>
+
+<script>
+
+    function mv_select_option(ele, to_select){
+        var new_target_id = $(ele).parent().attr('id');
+        var option = "<option value='" + $(ele).val() +"'onclick=mv_select_option(this,'"+ new_target_id +"') >" + $(ele).text() +"</option>";
+        $("#"+ to_select).append(option);
+        $(ele).remove();
+    }
+    function mv_all_select_option(from,to){
+       $('#'+from).children().each(function(){
+           mv_select_option(this,to);
+       })
+        
+    }
+    function submit_data(){
+        $('select[tag] option').attr('selected',true)
+    }
+    function serach_obj(ele){
+        var input_value = $(ele).val().toUpperCase();
+       $(ele).next().children().each(function(){
+           if($(this).text().toUpperCase().search(input_value) !=-1){
+               $(this).show();
+           }else{
+            $(this).hide();
+           }
+       })
+    }
+        
+
+</script> 
+
+{% endblock right_content %}

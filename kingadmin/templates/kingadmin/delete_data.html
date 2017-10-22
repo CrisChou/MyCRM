@@ -1,0 +1,21 @@
+{% extends "index.html" %}
+{% load kingadmin_tags %}
+
+{% block right_content %}
+
+
+    <div class="alert alert-danger" role="alert">注意！关联内容将被一并删除</div>
+    {% for obj in objs %}
+    {% build_delete_msg obj as msg %}
+    {{ msg|safe }}
+    {% endfor %}
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Delete" class="btn btn-danger">
+    </form>
+
+
+
+{% endblock right_content %}
+
