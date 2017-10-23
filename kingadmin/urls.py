@@ -8,8 +8,14 @@ urlpatterns = [
         r'^(\w+)/(\w+)/(\d+)/change_data.html$',
         views.chang_data,
         name='table_obj_change', ),
-    url(r'^(\w+)/(\w+)/add_data.html$', views.add_data),
+    url(
+        r'^(\w+)/(\w+)/add_data.html$',
+        views.add_data,
+        name='table_obj_add', ),
     url(r'^(\w+)/(\w+)/(\d+)/delete_data.html$',
         views.delete_data,
         name='delete_data.html'),
 ]
+
+
+
